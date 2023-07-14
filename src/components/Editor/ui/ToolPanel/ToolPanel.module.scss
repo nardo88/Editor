@@ -1,0 +1,35 @@
+.panelBtn {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    padding: 4px;
+    border-radius: 6px;
+
+    svg {
+        fill: var(--color-border);
+        width: 20px;
+        height: 20px;
+    }
+
+    &:hover {
+        box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.3) inset;
+    }
+}
+
+.active {
+    svg {
+        fill: var(--color-primary);
+    }
+
+    box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.3) inset;
+}
+
+.buttonErapper {
+    display: flex;
+    list-style: none;
+    gap: 5px;
+}
+
+.ToolPanel {
+    padding: 15px;
+}
