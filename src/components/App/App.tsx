@@ -3,8 +3,8 @@ import './styles/App.scss'
 
 function App() {
   return (
-    <div>
-      <Editor />
+    <div className="container">
+      <Editor label="Текстовый редактор" />
     </div>
   )
 }

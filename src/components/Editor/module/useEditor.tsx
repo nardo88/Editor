@@ -1,6 +1,12 @@
-import { EditorState, RichUtils } from 'draft-js'
+import {
+  CompositeDecorator,
+  DraftEntityMutability,
+  EditorState,
+  RichUtils,
+} from 'draft-js'
 import { useCallback, useMemo, useState } from 'react'
-import { BlockType, InlineStyle } from './config'
+import { BlockType, EntityType, InlineStyle } from './config'
+import LinkDecorator from '../ui/Link/decorator'
 
 export type EditorApi = {
   state: EditorState
@@ -9,11 +15,16 @@ export type EditorApi = {
   currentBlockType: BlockType
   toggleInlineStyle: (inlineStyle: InlineStyle) => void
   hasInlineStyle: (inlineStyle: InlineStyle) => boolean
+  addLink: (url: string) => void
+  setEntityData: (entityKey: string, data: any) => void
 }
+
+/* Объединям декораторы в один */
+const decorator = new CompositeDecorator([LinkDecorator])
 
 export const useEditor = (): EditorApi => {
   // С помощью метода EditorState.createEmpty() мы создаем пустое имутабельное состояние нашего редактора и сохраняем его в локальном состоянии.
-  const [state, setState] = useState(() => EditorState.createEmpty())
+  const [state, setState] = useState(() => EditorState.createEmpty(decorator))
 
   const toggleBlockType = useCallback((blockType: BlockType) => {
     setState((currentState) =>
@@ -47,6 +58,56 @@ export const useEditor = (): EditorApi => {
     [state]
   )
 
+  const addEntity = useCallback(
+    (
+      entityType: EntityType,
+      data: Record<string, string>,
+      mutability: DraftEntityMutability
+    ) => {
+      setState((currentState) => {
+        /* Получаем текущий контент */
+        const contentState = currentState.getCurrentContent()
+        /* Создаем Entity с данными */
+        const contentStateWithEntity = contentState.createEntity(
+          entityType,
+          mutability,
+          data
+        )
+        /* Получаем уникальный ключ Entity */
+        const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
+        /* Обьединяем текущее состояние с новым */
+        const newState = EditorState.set(currentState, {
+          currentContent: contentStateWithEntity,
+        })
+        /* Вставляем ссылку в указанное место */
+        return RichUtils.toggleLink(
+          newState,
+          newState.getSelection(),
+          entityKey
+        )
+      })
+    },
+    []
+  )
+
+  const addLink = useCallback(
+    (url: string) => {
+      addEntity(EntityType.link, { url }, 'MUTABLE')
+    },
+    [addEntity]
+  )
+
+  const setEntityData = useCallback((entityKey: string, data: any) => {
+    setState((currentState) => {
+      /* Получаем текущий контент */
+      const content = currentState.getCurrentContent()
+      /* Объединяем текущие данные Entity с новыми */
+      const contentStateUpdated = content.mergeEntityData(entityKey, data)
+      /* Обновляем состояние редактора с указанием типа изменения */
+      return EditorState.push(currentState, contentStateUpdated, 'apply-entity')
+    })
+  }, [])
+
   return useMemo(
     () => ({
       state,
@@ -55,6 +116,8 @@ export const useEditor = (): EditorApi => {
       currentBlockType,
       toggleInlineStyle,
       hasInlineStyle,
+      addLink,
+      setEntityData,
     }),
     [state, toggleInlineStyle, hasInlineStyle]
   )

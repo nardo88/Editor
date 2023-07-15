@@ -38,6 +38,7 @@ export enum InlineStyle {
   ITALIC = 'ITALIC',
   UNDERLINE = 'UNDERLINE',
   ACCENT = 'ACCENT', // код нашего произвольного стиля
+  LINK = 'LINK',
 }
 
 export const CUSTOM_STYLE_MAP = {
@@ -45,4 +46,17 @@ export const CUSTOM_STYLE_MAP = {
     backgroundColor: '#F7F6F3',
     color: '#A41E68',
   },
+}
+
+/*
+создания интерактивных элементов на примере вставки ссылок. Для этого мы воспользуемся Entities. Entity — объект, который хранит мета-данные для определенного фрагмента текста. У него есть три свойства:
+
+type — название типа Entity
+
+mutability — тип привязки к тексту (подробнее об этом будет ниже)
+
+data — мета-данные.
+*/
+export enum EntityType {
+  link = 'link',
 }

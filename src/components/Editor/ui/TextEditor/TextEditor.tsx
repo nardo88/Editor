@@ -14,7 +14,6 @@ export const TextEditor: FC<TextEditorProps> = ({ className }) => {
   return (
     <div className={classNames(cls.TextEditor, {}, [className])}>
       <Editor
-        // placeholder="Введите ваш текст"
         editorState={state}
         onChange={onChange}
         blockRenderMap={BLOCK_RENDER_MAP}

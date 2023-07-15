@@ -1,0 +1,15 @@
+.Main {
+    position: relative;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+}
+
+.label {
+    position: absolute;
+    left: 10px;
+    top: 0;
+    transform: translateY(-50%);
+    background: var(--color-white);
+    padding: 5px;
+    color: var(--color-border);
+}
