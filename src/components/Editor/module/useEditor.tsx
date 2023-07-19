@@ -4,9 +4,12 @@ import {
   EditorState,
   RichUtils,
 } from 'draft-js'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BlockType, EntityType, InlineStyle } from './config'
 import LinkDecorator from '../ui/Link/decorator'
+import { HTMLtoState, stateToHTML } from './convert'
+
+export type HTMLType = ReturnType<typeof stateToHTML>
 
 export type EditorApi = {
   state: EditorState
@@ -17,15 +20,20 @@ export type EditorApi = {
   hasInlineStyle: (inlineStyle: InlineStyle) => boolean
   addLink: (url: string) => void
   setEntityData: (entityKey: string, data: any) => void
+  toHtml: () => HTMLType
 }
 
 /* Объединям декораторы в один */
 const decorator = new CompositeDecorator([LinkDecorator])
 
-export const useEditor = (): EditorApi => {
+export const useEditor = (html?: string): EditorApi => {
+  console.log('html: ', html)
   // С помощью метода EditorState.createEmpty() мы создаем пустое имутабельное состояние нашего редактора и сохраняем его в локальном состоянии.
-  const [state, setState] = useState(() => EditorState.createEmpty(decorator))
-
+  const [state, setState] = useState(() =>
+    html
+      ? EditorState.createWithContent(HTMLtoState(html), decorator)
+      : EditorState.createEmpty(decorator)
+  )
   const toggleBlockType = useCallback((blockType: BlockType) => {
     setState((currentState) =>
       RichUtils.toggleBlockType(currentState, blockType)
@@ -108,6 +116,10 @@ export const useEditor = (): EditorApi => {
     })
   }, [])
 
+  const toHtml = useCallback(() => {
+    return stateToHTML(state.getCurrentContent())
+  }, [state])
+
   return useMemo(
     () => ({
       state,
@@ -118,7 +130,17 @@ export const useEditor = (): EditorApi => {
       hasInlineStyle,
       addLink,
       setEntityData,
+      toHtml,
     }),
-    [state, toggleInlineStyle, hasInlineStyle]
+    [
+      state,
+      toggleInlineStyle,
+      hasInlineStyle,
+      toHtml,
+      html,
+      setEntityData,
+      addLink,
+      currentBlockType,
+    ]
   )
 }

@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, useEffect } from 'react'
 import { Editor } from 'draft-js'
 import { classNames } from '@helpers/classNames'
 import cls from './TextEditor.module.scss'
@@ -7,10 +7,15 @@ import { BLOCK_RENDER_MAP, CUSTOM_STYLE_MAP } from '../../module/config'
 
 interface TextEditorProps {
   className?: string
+  setValue: (v: string) => void
 }
 
-export const TextEditor: FC<TextEditorProps> = ({ className }) => {
-  const { state, onChange } = useEditorApi()
+export const TextEditor: FC<TextEditorProps> = ({ className, setValue }) => {
+  const { state, onChange, toHtml } = useEditorApi()
+
+  useEffect(() => {
+    setValue(toHtml())
+  }, [state])
   return (
     <div className={classNames(cls.TextEditor, {}, [className])}>
       <Editor

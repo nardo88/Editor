@@ -3,6 +3,7 @@ import { EditorApi, useEditor } from './useEditor'
 
 interface IProviderProps {
   children: React.ReactNode
+  value: string
 }
 
 const TextEditorContext = createContext<EditorApi | undefined>(undefined)
@@ -17,8 +18,8 @@ export const useEditorApi = () => {
 }
 
 export const TextEditorProvider = (props: IProviderProps) => {
-  const { children } = props
-  const editorApi = useEditor()
+  const { children, value } = props
+  const editorApi = useEditor(value)
 
   return (
     <TextEditorContext.Provider value={editorApi}>
